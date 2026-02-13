@@ -1,0 +1,163 @@
+// This schema supports both PostgreSQL and SQLite
+// Provider is determined by DATABASE_URL environment variable
+// PostgreSQL: postgresql://user:pass@host:5432/db
+// SQLite: file:./data/labdash.db
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  VIEWER
+}
+
+enum ServiceType {
+  DOCKER
+  SONARR
+  RADARR
+  LIDARR
+  PROWLARR
+  READARR
+  PLEX
+  JELLYFIN
+  EMBY
+  QBITTORRENT
+  TRANSMISSION
+  SABNZBD
+  NZBGET
+  PIHOLE
+  ADGUARD
+  PROXMOX
+  UNRAID
+  PTERODACTYL
+  TAILSCALE
+  HOME_ASSISTANT
+  NEXTCLOUD
+  IMMICH
+  TAUTULLI
+  AUDIOBOOKSHELF
+  GITHUB
+  GITLAB
+  GITEA
+  MINECRAFT
+  CLOUDFLARE_TUNNEL
+  GRAFANA
+  PROMETHEUS
+  OTHER
+}
+
+enum WidgetType {
+  DOCKER_CONTAINER
+  DOCKER_STATS
+  DOCKER_LIST
+  ARR_SERVICE
+  DOWNLOAD_CLIENT
+  MEDIA_SERVER
+  DNS_BLOCKER
+  GRAFANA_PANEL
+  SYSTEM_HEALTH
+  CALENDAR
+  RECENT_ACTIVITY
+  CUSTOM_LINKS
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String
+  image         String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  dashboards Dashboard[]
+  sessions   Session[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Dashboard {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isDefault   Boolean  @default(false)
+  layout      Json? // React Grid Layout configuration
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  widgets Widget[]
+
+  @@index([userId])
+}
+
+model Widget {
+  id        String     @id @default(cuid())
+  type      WidgetType
+  config    Json // Widget-specific configuration
+  position  Json // { x, y, w, h } for grid layout
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@index([dashboardId])
+}
+
+model Service {
+  id          String      @id @default(cuid())
+  name        String
+  type        ServiceType
+  url         String
+  apiKey      String? // Encrypted
+  config      Json? // Service-specific configuration
+  enabled     Boolean     @default(true)
+  lastHealthy DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  healthChecks HealthCheck[]
+
+  @@index([type])
+}
+
+model HealthCheck {
+  id           String   @id @default(cuid())
+  status       String // "healthy", "degraded", "down"
+  responseTime Int? // milliseconds
+  error        String?
+  checkedAt    DateTime @default(now())
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@index([checkedAt])
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

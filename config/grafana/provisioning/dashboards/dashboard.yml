@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: 'LabDash'
+    orgId: 1
+    folder: 'LabDash'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/dashboards
+      foldersFromFilesStructure: true

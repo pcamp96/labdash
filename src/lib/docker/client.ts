@@ -87,8 +87,8 @@ export async function getContainerStats(id: string): Promise<ContainerStats> {
     const networkTx = Object.values(networks).reduce((acc: number, net: any) => acc + net.tx_bytes, 0);
 
     // Calculate block I/O
-    const blockRead = stats.blkio_stats.io_service_bytes_recursive?.find((item: any) => item.op === 'read')?.value || 0;
-    const blockWrite = stats.blkio_stats.io_service_bytes_recursive?.find((item: any) => item.op === 'write')?.value || 0;
+    const blockRead = stats.blkio_stats?.io_service_bytes_recursive?.find((item: any) => item.op === 'read')?.value || 0;
+    const blockWrite = stats.blkio_stats?.io_service_bytes_recursive?.find((item: any) => item.op === 'write')?.value || 0;
 
     return {
       cpuPercent: isNaN(cpuPercent) ? 0 : Number(cpuPercent.toFixed(2)),

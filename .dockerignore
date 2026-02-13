@@ -25,9 +25,9 @@ build
 # Debug
 *.log
 
-# Prisma
-prisma/*.db
-prisma/*.db-journal
+# Prisma (exclude SQLite databases at any depth)
+prisma/**/*.db
+prisma/**/*.db-journal
 
 # Git
 .git
@@ -43,6 +43,7 @@ docs
 # Development
 .vscode
 .idea
+.claude
 
 # Data
 data

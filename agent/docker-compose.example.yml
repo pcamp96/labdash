@@ -1,0 +1,37 @@
+# Example deployment of LabDash Agent
+# Copy this file to docker-compose.yml and update the environment variables
+
+version: '3.8'
+
+services:
+  labdash-agent:
+    image: labdash/agent:latest
+    container_name: labdash-agent
+    restart: unless-stopped
+    environment:
+      # URL of your LabDash server
+      LABDASH_SERVER: https://your-labdash-server.com
+
+      # Agent API key (generate this in LabDash UI)
+      AGENT_KEY: your-agent-key-here
+
+      # Optional: Custom agent name (defaults to hostname)
+      # AGENT_NAME: production-server
+
+      # Optional: Agent port (defaults to 8888)
+      # AGENT_PORT: 8888
+
+      # Optional: Docker socket path (defaults to /var/run/docker.sock)
+      # DOCKER_SOCKET: /var/run/docker.sock
+    volumes:
+      # Mount Docker socket (read-only for security)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      # Optional: Expose agent port for health checks
+      - "8888:8888"
+    networks:
+      - labdash
+
+networks:
+  labdash:
+    driver: bridge

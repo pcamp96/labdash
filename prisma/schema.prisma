@@ -154,6 +154,36 @@ model HealthCheck {
   @@index([checkedAt])
 }
 
+model DockerHost {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   @default("agent") // "local", "agent", "tcp", "ssh"
+  endpoint    String?  // Agent endpoint URL or Docker socket path
+  apiKey      String?  // Encrypted API key for agent authentication
+  enabled     Boolean  @default(true)
+  isDefault   Boolean  @default(false)
+  lastSeen    DateTime?
+  version     String?  // Agent version
+  metadata    Json?    // OS, architecture, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name])
+}
+
+model AgentKey {
+  id          String    @id @default(cuid())
+  name        String
+  key         String    @unique // The actual API key (hashed)
+  hostId      String?   // Associated DockerHost if registered
+  enabled     Boolean   @default(true)
+  lastUsed    DateTime?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  @@index([key])
+}
+
 model Setting {
   id        String   @id @default(cuid())
   key       String   @unique

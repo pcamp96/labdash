@@ -62,54 +62,63 @@
 ### Prerequisites
 
 - Docker & Docker Compose
-- Node.js 20+ (for development)
 - A Docker host you want to monitor
 
-### 1. Clone the Repository
+### Option A: Using Pre-Built Images (Recommended)
+
+Pull and run the latest images from GitHub Container Registry:
 
 ```bash
-git clone https://github.com/pcamp96/labdash.git
-cd labdash
-```
+# 1. Create directory and download compose file
+mkdir labdash && cd labdash
+curl -O https://raw.githubusercontent.com/pcamp96/labdash/main/docker-compose.ghcr.yml
 
-### 2. Set Up Environment
+# 2. Create environment file
+curl -O https://raw.githubusercontent.com/pcamp96/labdash/main/.env.example
+mv .env.example .env
 
-```bash
-# Copy example environment file
-cp .env.example .env
-
-# Generate secure secrets
+# 3. Generate secure secrets and update .env
 echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)"
 echo "ENCRYPTION_KEY=$(openssl rand -hex 32)"
+# Copy these values into .env
 
-# Update .env with these values
-nano .env
+# 4. Start LabDash
+docker-compose -f docker-compose.ghcr.yml up -d
+
+# 5. Watch logs
+docker-compose -f docker-compose.ghcr.yml logs -f labdash
 ```
 
-### 3. Start with Docker Compose
+### Option B: Build from Source
 
 ```bash
-# Start the full stack
-docker-compose up -d
+# 1. Clone the repository
+git clone https://github.com/pcamp96/labdash.git
+cd labdash
 
-# Watch logs
-docker-compose logs -f labdash
+# 2. Set up environment
+cp .env.example .env
+# Update .env with generated secrets (see above)
+
+# 3. Start the full stack
+docker-compose up -d
 ```
 
-### 4. Access LabDash
+### Access LabDash
 
-1. Open http://localhost:3000
+1. Open **http://localhost:3000**
 2. Click **Register** to create your account (first user = admin)
 3. Sign in and start monitoring!
 
-### 5. Deploy Agents on Remote Hosts
+### Deploy Agents on Remote Hosts
 
-On each Docker host you want to monitor:
+Monitor containers on multiple Docker hosts by deploying agents:
 
 ```bash
-# Generate agent key in LabDash UI first (Settings → Agents)
+# Pull the agent image
+docker pull ghcr.io/pcamp96/labdash-agent:latest
 
-# Then run:
+# Run the agent (get your API key from LabDash UI: Settings → Agents)
 docker run -d \
   --name labdash-agent \
   --restart unless-stopped \
@@ -117,7 +126,12 @@ docker run -d \
   -e LABDASH_SERVER=http://your-labdash-ip:3000 \
   -e AGENT_KEY=your-agent-key-here \
   -e AGENT_NAME="Production Server" \
-  labdash/agent:latest
+  ghcr.io/pcamp96/labdash-agent:latest
+```
+
+**One-line install:**
+```bash
+bash <(curl -s https://raw.githubusercontent.com/pcamp96/labdash/main/scripts/deploy-agent.sh) http://your-labdash-ip:3000 your-agent-key production-server
 ```
 
 See [Agent Deployment Guide](docs/AGENT-DEPLOYMENT.md) for detailed instructions.

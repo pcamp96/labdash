@@ -5,7 +5,7 @@ version: '3.8'
 
 services:
   labdash-agent:
-    image: labdash/agent:latest
+    image: ghcr.io/pcamp96/labdash-agent:latest
     container_name: labdash-agent
     restart: unless-stopped
     environment:

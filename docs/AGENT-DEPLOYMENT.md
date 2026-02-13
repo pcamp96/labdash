@@ -43,14 +43,18 @@ In LabDash dashboard:
 #### Option A: One-Line Install (Recommended)
 
 ```bash
+# Pull the latest agent image
+docker pull ghcr.io/pcamp96/labdash-agent:latest
+
+# Run the agent
 docker run -d \
   --name labdash-agent \
   --restart unless-stopped \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  -e LABDASH_SERVER=https://your-labdash-server.com \
+  -e LABDASH_SERVER=http://your-labdash-server:3000 \
   -e AGENT_KEY=your-agent-key-here \
   -e AGENT_NAME="Production Server" \
-  labdash/agent:latest
+  ghcr.io/pcamp96/labdash-agent:latest
 ```
 
 #### Option B: Using Deployment Script
@@ -71,7 +75,7 @@ Add to your existing `docker-compose.yml`:
 ```yaml
 services:
   labdash-agent:
-    image: labdash/agent:latest
+    image: ghcr.io/pcamp96/labdash-agent:latest
     container_name: labdash-agent
     restart: unless-stopped
     environment:

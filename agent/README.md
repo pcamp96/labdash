@@ -16,13 +16,18 @@ In your LabDash dashboard:
 #### Option A: Docker Run (Quickest)
 
 ```bash
+# Pull the latest agent image
+docker pull ghcr.io/pcamp96/labdash-agent:latest
+
+# Run the agent
 docker run -d \
   --name labdash-agent \
   --restart unless-stopped \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  -e LABDASH_SERVER=https://your-labdash-server.com \
+  -e LABDASH_SERVER=http://your-labdash-server:3000 \
   -e AGENT_KEY=your-agent-key-here \
-  labdash/agent:latest
+  -e AGENT_NAME="Production Server" \
+  ghcr.io/pcamp96/labdash-agent:latest
 ```
 
 #### Option B: Docker Compose

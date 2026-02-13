@@ -1,49 +1,89 @@
 # LabDash Quick Start Guide
 
-This guide will get you up and running with LabDash in under 5 minutes.
+Get LabDash running in under 5 minutes using pre-built Docker images.
 
-## Step 1: Generate Secrets
+## Prerequisites
 
-Generate secure secrets for your environment:
+- Docker and Docker Compose installed
+- A machine to run LabDash (can be the same machine you want to monitor)
+
+## Step 1: Download Configuration Files
+
+```bash
+# Create directory
+mkdir labdash && cd labdash
+
+# Download docker-compose file
+curl -O https://raw.githubusercontent.com/pcamp96/labdash/main/docker-compose.ghcr.yml
+
+# Download example config
+curl -O https://raw.githubusercontent.com/pcamp96/labdash/main/config/prometheus/prometheus.yml
+mkdir -p config/prometheus config/grafana/provisioning
+mv prometheus.yml config/prometheus/
+
+# Download Grafana config
+curl -O https://raw.githubusercontent.com/pcamp96/labdash/main/config/grafana/provisioning/datasources/prometheus.yml
+mkdir -p config/grafana/provisioning/datasources
+mv prometheus.yml config/grafana/provisioning/datasources/
+```
+
+Or simply clone the repository:
+
+```bash
+git clone https://github.com/pcamp96/labdash.git
+cd labdash
+```
+
+## Step 2: Generate Secrets
 
 ```bash
 # Generate NEXTAUTH_SECRET
-openssl rand -base64 32
+echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)"
 
 # Generate ENCRYPTION_KEY
-openssl rand -hex 32
+echo "ENCRYPTION_KEY=$(openssl rand -hex 32)"
 ```
 
-Copy these values and update your `.env` file:
-- Replace `your-secret-here-replace-me` with the first output
-- Replace `your-encryption-key-here-replace-me` with the second output
+**Save these values!** You'll need them in the next step.
 
-## Step 2: Install Dependencies
+## Step 3: Create Environment File
+
+Create a `.env` file:
 
 ```bash
-npm install
+cat > .env << 'EOF'
+# Required Secrets (replace with your generated values)
+NEXTAUTH_SECRET=your-nextauth-secret-here
+ENCRYPTION_KEY=your-encryption-key-here
+
+# Optional (defaults shown)
+NEXTAUTH_URL=http://localhost:3000
+POSTGRES_PASSWORD=changeme
+GRAFANA_PASSWORD=admin
+EOF
 ```
 
-## Step 3: Set Up Database
+Update the file with your generated secrets from Step 2.
 
-For development, we're using SQLite (no Docker required):
+## Step 4: Start LabDash
 
 ```bash
-npx prisma migrate dev --name init
+# Pull latest images
+docker-compose -f docker-compose.ghcr.yml pull
+
+# Start all services
+docker-compose -f docker-compose.ghcr.yml up -d
+
+# Watch logs
+docker-compose -f docker-compose.ghcr.yml logs -f labdash
 ```
 
-This will:
-- Create the SQLite database at `./data/labdash.db`
-- Run all migrations
-- Generate the Prisma Client
+## Step 5: Access LabDash
 
-## Step 4: Start Development Server
-
-```bash
-npm run dev
-```
-
-Visit http://localhost:3000
+Open your browser and navigate to:
+- **LabDash**: http://localhost:3000
+- **Grafana**: http://localhost:3001
+- **Prometheus**: http://localhost:9090
 
 ## Step 5: Create Your Account
 

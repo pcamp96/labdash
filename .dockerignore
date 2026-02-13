@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+npm-debug.log
+package-lock.json
+
+# Testing
+coverage
+.jest
+
+# Next.js
+.next
+out
+dist
+
+# Production
+build
+
+# Misc
+.DS_Store
+*.pem
+
+# Environment
+.env
+.env*.local
+
+# Debug
+*.log
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Git
+.git
+.gitignore
+
+# CI/CD
+.github
+
+# Documentation
+*.md
+docs
+
+# Development
+.vscode
+.idea
+
+# Data
+data
+
+# Agent (separate build)
+agent
